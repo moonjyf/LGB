@@ -35,9 +35,9 @@ with st.form("input_form"):
             inputs.append(st.selectbox(col, options=[0, 1], index=0))
 
         elif col == "Age (years)":
-            min_val = int(X_test["Age"].min())
+            min_val = int(X_test["Age (years)"].min())
             max_val = 100
-            default_val = int(X_test["Age"].median())
+            default_val = int(X_test["Age (years)"].median())
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=1)
             )
@@ -53,7 +53,7 @@ with st.form("input_form"):
         elif col == "Plaque thickness (mm)":
             min_val = 0.0
             max_val = 7.0
-            default_val = float(X_test["Max plaque thickness"].median())
+            default_val = float(X_test["Plaque thickness (mm)"].median())
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
@@ -61,7 +61,7 @@ with st.form("input_form"):
         elif col == "IMT (mm)":
             min_val = 0.0
             max_val = 1.5
-            default_val = float(X_test["IMT"].median())
+            default_val = float(X_test["IMT (mm)"].median())
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
@@ -91,14 +91,14 @@ if submitted:
     st.subheader("Model Input Features")
     st.dataframe(input_data)
 
-    # Prepare model input with original column names
+    # Prepare model input with new column names
     model_input = pd.DataFrame([{
-        "Age": input_data["Age (years)"].iloc[0],
+        "Age (years)": input_data["Age (years)"].iloc[0],
         "Hypertension": input_data["Hypertension"].iloc[0],
-        "IMT": input_data["IMT (mm)"].iloc[0],
+        "IMT (mm)": input_data["IMT (mm)"].iloc[0],
         "TyG index": input_data["TyG index"].iloc[0],
         "Carotid plaque burden": input_data["Carotid plaque burden"].iloc[0],
-        "Max plaque thickness": input_data["Plaque thickness (mm)"].iloc[0]
+        "Plaque thickness (mm)": input_data["Plaque thickness (mm)"].iloc[0]
     }])
 
     predicted_proba = model.predict_proba(model_input)[0]
@@ -130,3 +130,4 @@ if submitted:
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     plt.close()
     st.image("shap_force_plot.png")
+
