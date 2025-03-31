@@ -110,13 +110,13 @@ if submitted:
     mid_threshold = np.percentile(y_probs, 89.9)
 
     if predicted_proba[1] <= low_threshold:
-        risk_level = "**🟢 LOW RISK**"
+        risk_level = "🟢 **You are currently at a low risk of cardiovascular disease.**"
         suggestion = "Please continue to maintain a healthy lifestyle and attend regular follow-up visits."
     elif predicted_proba[1] <= mid_threshold:
-        risk_level = "**🟡 MODERATE RISK**"
+        risk_level = "🟡 **You are at a moderate risk of cardiovascular disease.**"
         suggestion = "It is advised to monitor your condition closely and consider preventive interventions."
     else:
-        risk_level = "**🔴 HIGH RISK**"
+        risk_level = "🔴 **You are at a high risk of cardiovascular disease.**"
         suggestion = "It is recommended to consult a physician promptly and take proactive medical measures."
 
     # ==== Display Result ====
@@ -148,4 +148,3 @@ if submitted:
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     plt.close()
     st.image("shap_force_plot.png")
-
