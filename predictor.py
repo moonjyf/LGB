@@ -37,23 +37,23 @@ with st.form("input_form"):
         elif col == "Age (years)":
             min_val = int(X_test["Age (years)"].min())
             max_val = 100
-            default_val = int(X_test["Age (years)"].median())
+            default_val = round(X_test["Age (years)"].median(), 2)
             inputs.append(
-                st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=1)
+                st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=1.0, format="%.2f")
             )
 
         elif col == "Carotid plaque burden":
             min_val = int(X_test[col].min())
             max_val = 15
-            default_val = int(X_test[col].median())
+            default_val = round(X_test[col].median(), 2)
             inputs.append(
-                st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=1)
+                st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=1.0, format="%.2f")
             )
 
         elif col == "Plaque thickness (mm)":
             min_val = 0.0
             max_val = 7.0
-            default_val = float(X_test["Plaque thickness (mm)"].median())
+            default_val = round(X_test[col].median(), 2)
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
@@ -77,9 +77,9 @@ with st.form("input_form"):
         else:
             min_val = float(X_test[col].min())
             max_val = float(X_test[col].max())
-            default_val = float(X_test[col].median())
+            default_val = round(X_test[col].median(), 2)
             inputs.append(
-                st.number_input(col, value=default_val, min_value=min_val, max_value=max_val)
+                st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
 
     submitted = st.form_submit_button("Submit Prediction")
@@ -87,11 +87,11 @@ with st.form("input_form"):
 # ===== Prediction and interpretation =====
 if submitted:
     input_data = pd.DataFrame([inputs], columns=feature_names)
-    input_data = input_data.round(2)  # 保留两位小数用于显示
+    input_data = input_data.round(2)
     st.subheader("Model Input Features")
     st.dataframe(input_data)
 
-    # Prepare model input with new column names
+    # Prepare model input
     model_input = pd.DataFrame([{
         "Age (years)": input_data["Age (years)"].iloc[0],
         "Hypertension": input_data["Hypertension"].iloc[0],
@@ -110,18 +110,23 @@ if submitted:
     mid_threshold = np.percentile(y_probs, 89.9)
 
     if predicted_proba[1] <= low_threshold:
-        risk_level = "🟢 Low Risk (bottom 53.94%)"
+        risk_level = "**🟢 LOW RISK**"
+        suggestion = "Please continue to maintain a healthy lifestyle and attend regular follow-up visits."
     elif predicted_proba[1] <= mid_threshold:
-        risk_level = "🟡 Moderate Risk (middle 35.96%)"
+        risk_level = "**🟡 MODERATE RISK**"
+        suggestion = "It is advised to monitor your condition closely and consider preventive interventions."
     else:
-        risk_level = "🔴 High Risk (top 10.10%)"
+        risk_level = "**🔴 HIGH RISK**"
+        suggestion = "It is recommended to consult a physician promptly and take proactive medical measures."
 
     # ==== Display Result ====
     st.subheader("Prediction Result & Explanation")
-    st.markdown(f"**Estimated probability:** {probability:.1f}%")
-    st.markdown(f"**Risk Category:** {risk_level}")
+    st.markdown(f"**Estimated probability:** {probability:.2f}%")
+    st.markdown(f"{risk_level}\n\n{suggestion}")
 
     # ===== SHAP Force Plot =====
+    st.subheader("SHAP Force Plot Explanation")
+
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(model_input)
 
