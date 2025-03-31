@@ -82,6 +82,7 @@ with st.form("input_form"):
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
 
+    # ✅ 修复：submit button 必须在 form 块内
     submitted = st.form_submit_button("Submit Prediction")
 
 # ===== Prediction and interpretation =====
@@ -110,13 +111,13 @@ if submitted:
     mid_threshold = np.percentile(y_probs, 89.9)
 
     if predicted_proba[1] <= low_threshold:
-        risk_level = "🟢 **You are currently at a low risk of cardiovascular disease.**"
+        risk_level = "**🟢 LOW RISK**"
         suggestion = "Please continue to maintain a healthy lifestyle and attend regular follow-up visits."
     elif predicted_proba[1] <= mid_threshold:
-        risk_level = "🟡 **You are at a moderate risk of cardiovascular disease.**"
+        risk_level = "**🟡 MODERATE RISK**"
         suggestion = "It is advised to monitor your condition closely and consider preventive interventions."
     else:
-        risk_level = "🔴 **You are at a high risk of cardiovascular disease.**"
+        risk_level = "**🔴 HIGH RISK**"
         suggestion = "It is recommended to consult a physician promptly and take proactive medical measures."
 
     # ==== Display Result ====
