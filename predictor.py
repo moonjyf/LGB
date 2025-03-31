@@ -37,23 +37,23 @@ with st.form("input_form"):
         elif col == "Age (years)":
             min_val = int(X_test["Age (years)"].min())
             max_val = 100
-            default_val = round(X_test["Age (years)"].median(), 2)
+            default_val = int(X_test["Age (years)"].median())
             inputs.append(
-                st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=1.0, format="%.2f")
+                st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=1)
             )
 
         elif col == "Carotid plaque burden":
             min_val = int(X_test[col].min())
             max_val = 15
-            default_val = round(X_test[col].median(), 2)
+            default_val = int(X_test[col].median())
             inputs.append(
-                st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=1.0, format="%.2f")
+                st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=1)
             )
 
         elif col == "Plaque thickness (mm)":
             min_val = 0.0
             max_val = 7.0
-            default_val = round(X_test[col].median(), 2)
+            default_val = float(X_test["Plaque thickness (mm)"].median())
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
@@ -77,12 +77,11 @@ with st.form("input_form"):
         else:
             min_val = float(X_test[col].min())
             max_val = float(X_test[col].max())
-            default_val = round(X_test[col].median(), 2)
+            default_val = float(X_test[col].median())
             inputs.append(
-                st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
+                st.number_input(col, value=default_val, min_value=min_val, max_value=max_val)
             )
 
-    # ✅ 修复：submit button 必须在 form 块内
     submitted = st.form_submit_button("Submit Prediction")
 
 # ===== Prediction and interpretation =====
@@ -92,7 +91,7 @@ if submitted:
     st.subheader("Model Input Features")
     st.dataframe(input_data)
 
-    # Prepare model input
+    # Prepare model input with new column names
     model_input = pd.DataFrame([{
         "Age (years)": input_data["Age (years)"].iloc[0],
         "Hypertension": input_data["Hypertension"].iloc[0],
@@ -111,23 +110,22 @@ if submitted:
     mid_threshold = np.percentile(y_probs, 89.9)
 
     if predicted_proba[1] <= low_threshold:
-        risk_level = "**🟢 LOW RISK**"
-        suggestion = "Please continue to maintain a healthy lifestyle and attend regular follow-up visits."
+        risk_level = "🟢 **You are currently at a low risk of cardiovascular disease.**"
+        suggestion = "✅ Please continue to maintain a healthy lifestyle and attend regular follow-up visits."
     elif predicted_proba[1] <= mid_threshold:
-        risk_level = "**🟡 MODERATE RISK**"
-        suggestion = "It is advised to monitor your condition closely and consider preventive interventions."
+        risk_level = "🟡 **You are at a moderate risk of cardiovascular disease.**"
+        suggestion = "⚠️ It is advised to monitor your condition closely and consider preventive interventions."
     else:
-        risk_level = "**🔴 HIGH RISK**"
-        suggestion = "It is recommended to consult a physician promptly and take proactive medical measures."
+        risk_level = "🔴 **You are at a high risk of cardiovascular disease.**"
+        suggestion = "🚨 It is recommended to consult a physician promptly and take proactive medical measures."
 
     # ==== Display Result ====
     st.subheader("Prediction Result & Explanation")
-    st.markdown(f"**Estimated probability:** {probability:.2f}%")
-    st.markdown(f"{risk_level}\n\n{suggestion}")
+    st.markdown(f"**Estimated probability:** {probability:.1f}%")
+    st.markdown(risk_level)
+    st.info(suggestion)
 
     # ===== SHAP Force Plot =====
-    st.subheader("SHAP Force Plot Explanation")
-
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(model_input)
 
