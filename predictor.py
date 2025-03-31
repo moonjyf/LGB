@@ -91,7 +91,7 @@ if submitted:
     st.subheader("Model Input Features")
     st.dataframe(input_data)
 
-    # Prepare model input with new column names
+    # Prepare model input
     model_input = pd.DataFrame([{
         "Age (years)": input_data["Age (years)"].iloc[0],
         "Hypertension": input_data["Hypertension"].iloc[0],
@@ -122,14 +122,14 @@ if submitted:
     # ==== Display Result ====
     st.subheader("Prediction Result & Explanation")
     st.markdown(f"**Estimated probability:** {probability:.1f}%")
-    st.markdown(risk_level)
-    st.info(suggestion)
+    st.info(risk_level)
+    st.markdown(suggestion)
 
     # ===== SHAP Force Plot =====
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(model_input)
 
-    if isinstance(shap_values, list):  # Binary classification
+    if isinstance(shap_values, list):
         shap_value_sample = shap_values[1]
         expected_value = explainer.expected_value[1]
     else:
@@ -147,3 +147,4 @@ if submitted:
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     plt.close()
     st.image("shap_force_plot.png")
+
