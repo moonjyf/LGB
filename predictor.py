@@ -104,9 +104,22 @@ if submitted:
     predicted_proba = model.predict_proba(model_input)[0]
     probability = predicted_proba[1] * 100
 
-    # ==== 整合展示预测结果和 SHAP 可视化 ====
+    # ===== Risk Stratification by Percentile =====
+    y_probs = model.predict_proba(X_test)[:, 1]
+    low_threshold = np.percentile(y_probs, 53.94)
+    mid_threshold = np.percentile(y_probs, 89.9)
+
+    if predicted_proba[1] <= low_threshold:
+        risk_level = "🟢 Low Risk (bottom 53.94%)"
+    elif predicted_proba[1] <= mid_threshold:
+        risk_level = "🟡 Moderate Risk (middle 35.96%)"
+    else:
+        risk_level = "🔴 High Risk (top 10.10%)"
+
+    # ==== Display Result ====
     st.subheader("Prediction Result & Explanation")
     st.markdown(f"**Estimated probability:** {probability:.1f}%")
+    st.markdown(f"**Risk Category:** {risk_level}")
 
     # ===== SHAP Force Plot =====
     explainer = shap.TreeExplainer(model)
@@ -130,6 +143,4 @@ if submitted:
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     plt.close()
     st.image("shap_force_plot.png")
-
-
 
