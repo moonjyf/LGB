@@ -106,8 +106,8 @@ if submitted:
 
     # ===== Risk Stratification by Percentile =====
     y_probs = model.predict_proba(X_test)[:, 1]
-    low_threshold = np.percentile(y_probs, 53.94)
-    mid_threshold = np.percentile(y_probs, 89.9)
+    low_threshold = np.percentile(y_probs, 50.0)        # 前50%
+    mid_threshold = np.percentile(y_probs, 88.07)       # 前50% + 38.07% = 88.07%
 
     if predicted_proba[1] <= low_threshold:
         risk_level = "🟢 **You are currently at a low risk of cardiovascular disease.**"
