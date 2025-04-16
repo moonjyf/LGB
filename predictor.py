@@ -19,10 +19,10 @@ X_test = pd.read_csv('x_test.csv')          # Original test set for SHAP/LIME co
 feature_names = [
     "Age (years)",
     "Hypertension",
-    "IMT (mm)",
-    "TyG index",
-    "Carotid plaque burden",
-    "Plaque thickness (mm)"
+    "TyG index",  # Swapped with IMT
+    "IMT (mm)",   # Swapped with TyG
+    "Maximum plaque thickness (mm)",  # Changed here
+    "Carotid plaque burden"  # Moved to the last position
 ]
 
 # ===== Input form =====
@@ -42,7 +42,7 @@ with st.form("input_form"):
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=1)
             )
 
-        elif col == "Carotid plaque burden":
+        elif col == "Carotid plaque burden":  # Now the last one
             min_val = int(X_test[col].min())
             max_val = 15
             default_val = int(X_test[col].median())
@@ -50,15 +50,15 @@ with st.form("input_form"):
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=1)
             )
 
-        elif col == "Plaque thickness (mm)":
+        elif col == "Maximum plaque thickness (mm)":  # Changed here
             min_val = 0.0
             max_val = 7.0
-            default_val = float(X_test["Plaque thickness (mm)"].median())
+            default_val = float(X_test["Maximum plaque thickness (mm)"].median())  # Changed here
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
 
-        elif col == "IMT (mm)":
+        elif col == "IMT (mm)":  # Swapped position with TyG
             min_val = 0.0
             max_val = 1.5
             default_val = 0.0
@@ -66,7 +66,7 @@ with st.form("input_form"):
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
 
-        elif col == "TyG index":
+        elif col == "TyG index":  # Swapped position with IMT
             min_val = 0.0
             max_val = 15.0
             default_val = 0.0
@@ -95,10 +95,10 @@ if submitted:
     model_input = pd.DataFrame([{
         "Age (years)": input_data["Age (years)"].iloc[0],
         "Hypertension": input_data["Hypertension"].iloc[0],
-        "IMT (mm)": input_data["IMT (mm)"].iloc[0],
-        "TyG index": input_data["TyG index"].iloc[0],
-        "Carotid plaque burden": input_data["Carotid plaque burden"].iloc[0],
-        "Plaque thickness (mm)": input_data["Plaque thickness (mm)"].iloc[0]
+        "TyG index": input_data["TyG index"].iloc[0],  # Swapped with IMT
+        "IMT (mm)": input_data["IMT (mm)"].iloc[0],    # Swapped with TyG
+        "Maximum plaque thickness (mm)": input_data["Maximum plaque thickness (mm)"].iloc[0],  # Changed here
+        "Carotid plaque burden": input_data["Carotid plaque burden"].iloc[0]  # Now the last one
     }])
 
     predicted_proba = model.predict_proba(model_input)[0]
@@ -119,7 +119,7 @@ if submitted:
         risk_level = "🔴 **You are at a high risk of cardiovascular disease.**"
         suggestion = "🚨 It is recommended to consult a physician promptly and take proactive medical measures."
 
-    # ==== Display Result ====
+    # ==== Display Result ==== 
     st.subheader("Prediction Result & Explanation")
     st.markdown(f"**Estimated probability:** {probability:.1f}%")
     st.info(risk_level)
@@ -147,4 +147,3 @@ if submitted:
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     plt.close()
     st.image("shap_force_plot.png")
-
